@@ -1,0 +1,17 @@
+{
+  "name": "technical-test-hold",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5173",
+    "test": "vitest run",
+    "test:ui": "vitest"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0",
+    "vite": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}
