@@ -4,12 +4,13 @@ import { Store } from './store.js';
 import { render } from './ui/renderer.js';
 import { getAllDocuments } from './api.js';
 
-const viewOptions = { view: 'list' };
+const viewOptions = { view: 'list', sort: 'createdAt:desc' };
 
 Store.subscribe((state) => render(state, viewOptions));
 
 const btnList = selectElement('#btn-list');
 const btnGrid = selectElement('#btn-grid');
+const sortSel = selectElement('#sort-select');
 
 onEvent(btnList, 'click', () => {
     viewOptions.view = 'list';
@@ -22,6 +23,11 @@ onEvent(btnGrid, 'click', () => {
     viewOptions.view = 'grid';
     btnList?.setAttribute('aria-pressed', 'false');
     btnGrid?.setAttribute('aria-pressed', 'true');
+    render(Store.getState(), viewOptions);
+});
+
+onEvent(sortSel, 'change', () => {
+    viewOptions.sort = sortSel.value;
     render(Store.getState(), viewOptions);
 });
 
