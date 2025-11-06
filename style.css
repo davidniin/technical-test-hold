@@ -115,6 +115,10 @@ main {
     font-size: 14px;
 }
 
+.container-header-documents[hidden] {
+    display: none;
+}
+
 .col {
     white-space: nowrap;
     overflow: hidden;
@@ -161,8 +165,8 @@ main {
     gap: 16px;
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
+    border-radius: 2px;
+    padding: 22px;
     box-shadow: var(--shadow);
 }
 
@@ -178,8 +182,40 @@ main {
 }
 
 .row .list-col {
-    white-space: pre-line;
     color: #374151;
     font-size: 14px;
 }
 
+
+/* Grid */
+.doc-list.grid-view {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 18px;
+    text-align: center;
+}
+
+.card h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    color: #1f2937;
+}
+
+.card .version {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.card .stack {
+    color: #374151;
+    font-size: 14px;
+    line-height: 1.5;
+}
