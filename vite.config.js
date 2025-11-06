@@ -5,7 +5,7 @@ export default defineConfig({
     port: 5173
   },
   define: {
-    __API_BASE_URL__: JSON.stringify(process.env.VITE_API_BASE_URL || 'http://localhost:3000'),
-    __WS_URL__: JSON.stringify(process.env.VITE_WS_URL || 'ws://localhost:3000')
+    __API_BASE_URL__: JSON.stringify(process.env.VITE_API_BASE_URL || 'http://localhost:8080'),
+    __WS_URL__: JSON.stringify(process.env.VITE_WS_URL || 'ws://localhost:8080')
   }
 });

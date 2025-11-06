@@ -1,1 +1,63 @@
-works well
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Documents — Technical Test Hold</title>
+    <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+    <header class="app-header">
+        <h1>Documents</h1>
+
+        <div class="controls-container">
+            <div class="sort-container">
+                <span>Sort by:</span>
+                <label class="sort-options">
+                    <select id="sort-select" aria-label="Sort documents">
+                        <option value="createdAt:desc">Select one…</option>
+                        <option value="createdAt:desc">Creation date (newest)</option>
+                        <option value="createdAt:asc">Creation date (oldest)</option>
+                        <option value="name:asc">Name (A→Z)</option>
+                        <option value="name:desc">Name (Z→A)</option>
+                        <option value="version:desc">Version (high→low)</option>
+                        <option value="version:asc">Version (low→high)</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="container-render-icons" role="group" aria-label="Change view">
+                <button id="btn-list" class="icons-btn" aria-pressed="true" title="List">
+                    <span class="ico ico-list" aria-hidden="true"></span>
+                </button>
+                <button id="btn-grid" class="icons-btn" aria-pressed="false" title="Grid">
+                    <span class="ico ico-grid" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="notifications" class="notifications" aria-live="polite"></section>
+
+        <div id="container-header-documents" class="container-header-documents">
+            <div class="col col-name">Name</div>
+            <div class="col col-contrib">Contributors</div>
+            <div class="col col-attach">Attachments</div>
+        </div>
+
+        <section id="doc-list" class="doc-list list-view" aria-label="Document list"></section>
+
+        <div class="add-row">
+            <button id="link-add" class="link-add" type="button">+ Add document</button>
+        </div>
+
+       
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
