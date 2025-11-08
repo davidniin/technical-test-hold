@@ -21,6 +21,11 @@ export const Store = {
     notifySubscribers();
   },
 
+  addDocument(document) {
+    appState.documents.push(document);
+    notifySubscribers();
+  },
+
   subscribe(listener) {
     stateSubscribers.add(listener);
     return () => stateSubscribers.delete(listener);
