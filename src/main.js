@@ -1,8 +1,10 @@
 
 import { selectElement, onEvent } from './utils/dom.js';
+
 import { Store } from './store.js';
 import { render } from './ui/renderer.js';
 import { getAllDocuments } from './api.js';
+import { connectWS } from './websocket/main.js';
 
 const viewOptions = { view: 'list', sort: 'createdAt:desc' };
 
@@ -15,6 +17,8 @@ const buttonForNewDoc = selectElement('#link-add');
 const containerModal = selectElement('#new-modal-for-new-doc');
 const formDocument = selectElement('#form-new-document');
 const toastsBox = selectElement('#notifications');
+
+let disconnectWS = null;
 
 onEvent(btnList, 'click', () => {
     viewOptions.view = 'list';
@@ -83,6 +87,24 @@ const inizializeApp = async () => {
         toast('No se pudieron cargar documentos (puedes crear locales).');
         console.warn(err);
     }
+
+    disconnectWS = connectWS({
+        onOpen: () => {
+            toast('Connected to live updates');
+        },
+        onClose: () => {
+            toast('Disconnected. Trying to reconnect…');
+        },
+        onError: () => {
+            toast('WebSocket error');
+        },
+        onDocumentCreated: (doc) => {
+            Store.addDocument(doc);
+            render(Store.getState(), viewOptions);
+            console.log(doc)
+            toast('New document added: '+ doc.name);
+        },
+    });
 };
 
 const toast = (textToAddInToast) => {
@@ -91,9 +113,16 @@ const toast = (textToAddInToast) => {
     el.className = 'toast';
     el.textContent = textToAddInToast;
     toastsBox.appendChild(el);
-    setTimeout(() => el.remove(), 280000);
+    setTimeout(() => el.remove(), 2000);
 }
 
 void (async () => {
     await inizializeApp();
 })();
+
+
+window.addEventListener('beforeunload', () => {
+    if (typeof disconnectWS === 'function') {
+        disconnectWS();
+    }
+});
