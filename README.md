@@ -65,7 +65,7 @@ npm test
 | `store.test.js` | store state & subscriptions |
 | `sorting.test.js` | sorting logic |
 | `dom.test.js` | DOM helpers |
-
+| `date.test.js`   | date formatting utils|
 Run:
 ```bash
 npm test

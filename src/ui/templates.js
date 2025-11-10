@@ -1,3 +1,4 @@
+import { formatRelative } from '../utils/date.js';
 const HTML_ESCAPE_MAP = {
   '&': '&amp;',
   '<': '&lt;',
@@ -35,7 +36,9 @@ const renderListRow = (doc) => {
   return `<article class="row" data-id="${data.id}">
   <div class="list-col">
     <div class="name">${data.name}</div>
-    <div class="version">Version ${data.version}</div>
+    <div class="version">
+      Version ${Number(doc.version) || 1} · ${formatRelative(doc.createdAt)}
+    </div>
   </div>
   <div class="list-col">${data.contributors}</div>
   <div class="list-col">${data.attachments}</div>
@@ -47,7 +50,9 @@ const renderGridCard = (doc) => {
 
   return `<article class="card" data-id="${data.id}">
   <h3>${data.name}</h3>
-  <div class="version">Version ${data.version}</div>
+  <div class="version">
+    Version ${Number(doc.version) || 1} · ${formatRelative(doc.createdAt)}
+  </div>
   <div class="stack">
     <strong>Contributors:</strong><br/>${data.contributors}
     <br/><br/>
