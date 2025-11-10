@@ -37,6 +37,7 @@ const apiFetch = async (endpoint, options = {}) => {
 }
 
 const normalizeDocument = (apiDocument) => {
+    console.log('Normalizing document:', apiDocument);
     return {
         id: String(apiDocument?.ID ?? crypto.randomUUID()),
         name: apiDocument?.Title ?? 'Untitled',

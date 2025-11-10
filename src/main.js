@@ -101,7 +101,6 @@ const inizializeApp = async () => {
         onDocumentCreated: (doc) => {
             Store.addDocument(doc);
             render(Store.getState(), viewOptions);
-            console.log(doc)
             toast('New document added: '+ doc.name);
         },
     });
