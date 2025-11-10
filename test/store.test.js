@@ -14,14 +14,14 @@ describe('Store', () => {
     expect(fakeState.documents).not.toBe(fakeDocsArray);
   });
 
-  it('addDocument inserta al inicio y emite a los suscriptores', () => {
+  it('addNewDocument inserta al inicio y emite a los suscriptores', () => {
     const spy = vi.fn();
     const unsubscribe = Store.subscribe(spy);
 
     Store.setDocuments([{ id: 'x' }]);
     spy.mockClear();
 
-    Store.addDocument({ id: 'y' });
+    Store.addNewDocument({ id: 'y' });
 
     const fakeState = Store.getState();
     expect(fakeState.documents.map(d => d.id)).toEqual(['x', 'y']);

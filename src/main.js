@@ -5,6 +5,7 @@ import { Store } from './store.js';
 import { render } from './ui/renderer.js';
 import { getAllDocuments } from './api.js';
 import { connectWS } from './websocket/main.js';
+import { getLocalDocuments, mergeDocuments } from './utils/localDocuments.js';
 
 const viewOptions = { view: 'list', sort: 'createdAt:desc' };
 
@@ -71,8 +72,7 @@ onEvent(formDocument, 'submit', (e) => {
         attachments: attachmentsList,
         createdAt: new Date().toISOString()
     };
-
-    Store.addDocument(newDocument);
+    Store.addNewDocument(newDocument);
     toast('New document added');
     formDocument.reset();
     try { containerModal.close(); } catch { }
@@ -81,7 +81,9 @@ onEvent(formDocument, 'submit', (e) => {
 const inizializeApp = async () => {
     try {
         const documents = await getAllDocuments();
-        Store.setDocuments(documents);
+        const localDocs = getLocalDocuments();
+        const merged = mergeDocuments(documents, localDocs);
+        Store.setDocuments(merged);
     } catch (err) {
         Store.setDocuments([]);
         toast('No se pudieron cargar documentos (puedes crear locales).');
@@ -99,7 +101,7 @@ const inizializeApp = async () => {
             toast('WebSocket error');
         },
         onDocumentCreated: (doc) => {
-            Store.addDocument(doc);
+            Store.receivedDocuments(doc);
             render(Store.getState(), viewOptions);
             toast('New document added: '+ doc.name);
         },
