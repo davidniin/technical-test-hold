@@ -5,6 +5,7 @@ export const formatRelative = (dateAsString) => {
   const relativeTime = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
   const absoluteDiffInSeconds = Math.abs(diff);
+  // Use signed diff for formatting to get "ago" or "in"
   if (absoluteDiffInSeconds < 60) return relativeTime.format(Math.round(diff), 'second');
   if (absoluteDiffInSeconds < 3600) return relativeTime.format(Math.round(diff / 60), 'minute');
   if (absoluteDiffInSeconds < 86400) return relativeTime.format(Math.round(diff / 3600), 'hour');

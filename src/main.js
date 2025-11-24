@@ -1,129 +1,73 @@
 
+import { documentService } from './services/DocumentService.js';
+import './components/DocumentList.js';
+import './components/DocumentForm.js';
 import { selectElement, onEvent } from './utils/dom.js';
 
-import { Store } from './store.js';
-import { render } from './ui/renderer.js';
-import { getAllDocuments } from './api.js';
-import { connectWS } from './websocket/main.js';
-import { getLocalDocuments, mergeDocuments } from './utils/localDocuments.js';
-
-const viewOptions = { view: 'list', sort: 'createdAt:desc' };
-
-Store.subscribe((state) => render(state, viewOptions));
-
-const btnList = selectElement('#btn-list');
-const btnGrid = selectElement('#btn-grid');
-const sortSel = selectElement('#sort-select');
-const buttonForNewDoc = selectElement('#link-add');
-const containerModal = selectElement('#new-modal-for-new-doc');
-const formDocument = selectElement('#form-new-document');
+// Toast Logic (Global for now, could be a component)
 const toastsBox = selectElement('#notifications');
-
-let disconnectWS = null;
-
-onEvent(btnList, 'click', () => {
-    viewOptions.view = 'list';
-    btnList?.setAttribute('aria-pressed', 'true');
-    btnGrid?.setAttribute('aria-pressed', 'false');
-    render(Store.getState(), viewOptions);
-});
-
-onEvent(btnGrid, 'click', () => {
-    viewOptions.view = 'grid';
-    btnList?.setAttribute('aria-pressed', 'false');
-    btnGrid?.setAttribute('aria-pressed', 'true');
-    render(Store.getState(), viewOptions);
-});
-
-onEvent(sortSel, 'change', () => {
-    viewOptions.sort = sortSel.value;
-    render(Store.getState(), viewOptions);
-});
-
-onEvent(buttonForNewDoc, 'click', () => {
-    try { containerModal.showModal(); } catch { }
-});
-
-onEvent(formDocument, 'submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(formDocument);
-
-    const parseList = (value) => String(value ?? '').split(',').map(s => s.trim()).filter(Boolean);
-
-    const nameValue = String(formData.get('name') ?? '').trim();
-    const versionValue = Number(formData.get('version'));
-    const contributorsList = parseList(formData.get('contributors'));
-    const attachmentsList = parseList(formData.get('attachments'));
-
-    if (!nameValue) {
-        toast('Name is required');
-        return;
-    }
-    if (!versionValue || isNaN(versionValue)) {
-        toast('Version is required and must be a number');
-        return;
-    }
-
-    const newDocument = {
-        id: crypto.randomUUID(),
-        name: nameValue,
-        version: versionValue,
-        contributors: contributorsList,
-        attachments: attachmentsList,
-        createdAt: new Date().toISOString()
-    };
-    Store.addNewDocument(newDocument);
-    toast('New document added');
-    formDocument.reset();
-    try { containerModal.close(); } catch { }
-});
-
-const inizializeApp = async () => {
-    try {
-        const documents = await getAllDocuments();
-        const localDocs = getLocalDocuments();
-        const merged = mergeDocuments(documents, localDocs);
-        Store.setDocuments(merged);
-    } catch (err) {
-        Store.setDocuments([]);
-        toast('No se pudieron cargar documentos (puedes crear locales).');
-        console.warn(err);
-    }
-
-    disconnectWS = connectWS({
-        onOpen: () => {
-            toast('Connected to live updates');
-        },
-        onClose: () => {
-            toast('Disconnected. Trying to reconnect…');
-        },
-        onError: () => {
-            toast('WebSocket error');
-        },
-        onDocumentCreated: (doc) => {
-            Store.receivedDocuments(doc);
-            render(Store.getState(), viewOptions);
-            toast('New document added: '+ doc.name);
-        },
-    });
-};
-
-const toast = (textToAddInToast) => {
+const showToast = (text) => {
     if (!toastsBox) return;
     const el = document.createElement('div');
     el.className = 'toast';
-    el.textContent = textToAddInToast;
+    el.textContent = text;
     toastsBox.appendChild(el);
     setTimeout(() => el.remove(), 2000);
-}
+};
 
-void (async () => {
-    await inizializeApp();
-})();
+window.addEventListener('show-toast', (e) => showToast(e.detail));
+window.addEventListener('document-created', (e) => showToast(`New document added: ${e.detail.name}`));
 
+// App Initialization
+const init = async () => {
+    console.log('App initializing...');
+    // Wait for components to be defined
+    await Promise.all([
+        customElements.whenDefined('document-list'),
+        customElements.whenDefined('document-form')
+    ]);
 
-window.addEventListener('beforeunload', () => {
-    if (typeof disconnectWS === 'function') {
-        disconnectWS();
+    // UI Controls
+    const btnList = selectElement('#btn-list');
+    const btnGrid = selectElement('#btn-grid');
+    const sortSel = selectElement('#sort-select');
+    const buttonForNewDoc = selectElement('#link-add');
+    const containerModal = selectElement('#new-modal-for-new-doc');
+    const docList = document.querySelector('document-list'); // Use querySelector for custom element
+
+    // Event Listeners for Controls
+    if (docList) {
+        onEvent(btnList, 'click', () => {
+            docList.setView('list');
+            btnList?.setAttribute('aria-pressed', 'true');
+            btnGrid?.setAttribute('aria-pressed', 'false');
+        });
+
+        onEvent(btnGrid, 'click', () => {
+            docList.setView('grid');
+            btnList?.setAttribute('aria-pressed', 'false');
+            btnGrid?.setAttribute('aria-pressed', 'true');
+        });
+
+        onEvent(sortSel, 'change', () => {
+            docList.setSort(sortSel.value);
+        });
+    } else {
+        console.error('Document List component not found in DOM');
     }
+
+    onEvent(buttonForNewDoc, 'click', () => {
+        try { containerModal.showModal(); } catch { }
+    });
+
+    // Initialize Service
+    await documentService.init();
+};
+
+// Cleanup on unload
+window.addEventListener('beforeunload', () => {
+    documentService.dispose();
 });
+
+// Start
+init();

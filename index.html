@@ -48,19 +48,23 @@
             <div class="col col-attach">Attachments</div>
         </div>
 
-        <section id="doc-list" class="doc-list list-view" aria-label="Document list"></section>
+        <document-list id="doc-list" class="doc-list list-view" aria-label="Document list"></document-list>
 
         <div class="add-row">
             <button id="link-add" class="link-add" type="button">+ Add document</button>
         </div>
     </main>
 
-        <dialog id="new-modal-for-new-doc">
+    <dialog id="new-modal-for-new-doc">
+        <document-form>
             <form method="dialog" id="form-new-document">
                 <h2>Create document</h2>
                 <div id="container-form-new-document">
-                        <label class="label-inline"><span class="label-row"><span>Name</span><span class="required-field" title="Required"></span></span><input type="text" name="name" required /></label>
-                        <label class="label-inline"><span class="label-row"><span>Version</span><span class="required-field" title="Required"></span></span><input type="number" name="version" min="1" step="1" placeholder="1" required /></label>
+                    <label class="label-inline"><span class="label-row"><span>Name</span><span class="required-field"
+                                title="Required"></span></span><input type="text" name="name" required /></label>
+                    <label class="label-inline"><span class="label-row"><span>Version</span><span class="required-field"
+                                title="Required"></span></span><input type="text" name="version" placeholder="1.0.0"
+                            pattern="\d+\.\d+\.\d+" required /></label>
                     <label>Contributors (comma-separated)
                         <input type="text" name="contributors" placeholder="Gabriel, Fernando" />
                     </label>
@@ -73,8 +77,8 @@
                     <button class="primary" value="submit">Create</button>
                 </menu>
             </form>
-        </dialog>
-		
+        </document-form>
+    </dialog>
 
     <script type="module" src="/src/main.js"></script>
 </body>

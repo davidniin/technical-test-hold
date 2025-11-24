@@ -3,7 +3,7 @@ import { sortDocuments } from '../sorting.js';
 import { listRow, gridRow } from './templates.js';
 
 const docListEl = selectElement('#doc-list');
-const listHeaderEl = selectElement('#container-header-documents'); 
+const listHeaderEl = selectElement('#container-header-documents');
 
 export function render(appState, options = {}) {
     if (!docListEl) return;
@@ -19,5 +19,43 @@ export function render(appState, options = {}) {
         view === 'list' ? showElement(listHeaderEl) : hideElement(listHeaderEl);
     }
 
-    docListEl.innerHTML = view === 'list' ? documentsSortedList.map(listRow).join('') : documentsSortedList.map(gridRow).join('');
+    // Incremental reconciliation
+    const existingNodes = new Map();
+    Array.from(docListEl.children).forEach(child => {
+        if (child.id) existingNodes.set(child.id, child);
+    });
+
+    const fragment = document.createDocumentFragment();
+
+    documentsSortedList.forEach(doc => {
+        const html = view === 'list' ? listRow(doc) : gridRow(doc);
+
+        // Create temp node to parse HTML string
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        const newEl = temp.firstElementChild;
+
+        if (!newEl) return;
+
+        const docId = newEl.id; // Assume template puts ID on root element
+        const existingEl = existingNodes.get(docId);
+
+        if (existingEl) {
+            // Update content if changed
+            if (existingEl.innerHTML !== newEl.innerHTML) {
+                existingEl.innerHTML = newEl.innerHTML;
+                existingEl.className = newEl.className;
+            }
+            fragment.appendChild(existingEl); // Move to new position
+            existingNodes.delete(docId);
+        } else {
+            fragment.appendChild(newEl);
+        }
+    });
+
+    // Remove deleted nodes
+    existingNodes.forEach(node => node.remove());
+
+    // Append sorted/updated nodes
+    docListEl.appendChild(fragment);
 }

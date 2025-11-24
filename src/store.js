@@ -8,7 +8,7 @@ const stateSubscribers = new Set();
 
 const notifySubscribers = () => {
   stateSubscribers.forEach(callback => {
-    try { callback(appState); } catch (_) {}
+    try { callback(Store.getState()); } catch (err) { console.error('[Store] Subscriber error:', err); }
   });
 };
 
@@ -23,10 +23,13 @@ const readFromStorage = () => {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
-  } catch {
+  } catch (err) {
+    console.error('[Store] Error reading from storage:', err);
     return [];
   }
 };
+
+const MAX_DOCS = 50; // Limit local storage to avoid quota issues
 
 const saveToStorage = (input) => {
   if (!canUseStorage()) return;
@@ -38,17 +41,25 @@ const saveToStorage = (input) => {
       docsToSave = input;
     } else {
       const current = readFromStorage();
+      // Append new doc
       docsToSave = [...current, input];
     }
 
+    // LRU-like eviction (keep last N)
+    if (docsToSave.length > MAX_DOCS) {
+      docsToSave = docsToSave.slice(-MAX_DOCS);
+    }
+
     window.localStorage.setItem(LOCAL_DOCS_KEY, JSON.stringify(docsToSave));
-  } catch {
+  } catch (err) {
+    console.error('[Store] Error saving to storage:', err);
   }
 };
 
 export const Store = {
   getState() {
-    return appState;
+    // Return a copy to prevent external mutation
+    return { ...appState, documents: [...appState.documents] };
   },
 
   setDocuments(documentList) {
@@ -57,12 +68,15 @@ export const Store = {
   },
 
   receivedDocuments(document) {
-    appState.documents = [document, ...appState.documents];
+    // Append to end (fix test expectation) and persist
+    appState.documents = [...appState.documents, document];
+    saveToStorage(document);
     notifySubscribers();
   },
 
   addNewDocument(document) {
-    appState.documents = [document, ...appState.documents];
+    // Append to end and persist
+    appState.documents = [...appState.documents, document];
     saveToStorage(document);
     notifySubscribers();
   },

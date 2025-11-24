@@ -37,7 +37,6 @@ const apiFetch = async (endpoint, options = {}) => {
 }
 
 const normalizeDocument = (apiDocument) => {
-    console.log('Normalizing document:', apiDocument);
     return {
         id: String(apiDocument?.ID ?? crypto.randomUUID()),
         name: apiDocument?.Title ?? 'Untitled',
@@ -48,11 +47,12 @@ const normalizeDocument = (apiDocument) => {
         attachments: Array.isArray(apiDocument?.Attachments)
             ? apiDocument.Attachments
             : [],
-        createdAt: apiDocument?.UpdatedAt ?? new Date().toISOString()
+        createdAt: apiDocument?.CreatedAt ?? new Date().toISOString(),
+        updatedAt: apiDocument?.UpdatedAt ?? new Date().toISOString()
     };
 }
 
-export const getAllDocuments = async () => { 
+export const getAllDocuments = async () => {
     const responseData = await apiFetch('/documents');
 
     const documentList = Array.isArray(responseData) ? responseData : [];

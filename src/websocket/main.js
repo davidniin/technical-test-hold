@@ -1,5 +1,6 @@
-
-const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/notifications';
+const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+const WS_URL = import.meta.env.VITE_WS_URL || `${protocol}//localhost:8080/notifications`;
+const MAX_ATTEMPTS = 5;
 
 export function connectWS(opts = {}) {
     const {
@@ -12,6 +13,7 @@ export function connectWS(opts = {}) {
     let socket = null;
     let attempts = 0;
     let closedByUser = false;
+    let reconnectTimer = null;
 
 
     function openConnection() {
@@ -52,9 +54,14 @@ export function connectWS(opts = {}) {
 
             if (closedByUser) return;
 
+            if (attempts >= MAX_ATTEMPTS) {
+                console.error('[ws] Max reconnect attempts reached');
+                return;
+            }
+
             attempts += 1;
             const delay = Math.min(1000 * 2 ** attempts, 15000);
-            setTimeout(openConnection, delay);
+            reconnectTimer = setTimeout(openConnection, delay);
         });
 
         socket.addEventListener('error', (err) => {
@@ -66,6 +73,7 @@ export function connectWS(opts = {}) {
 
     return () => {
         closedByUser = true;
+        if (reconnectTimer) clearTimeout(reconnectTimer);
         try {
             socket && socket.close();
         } catch {

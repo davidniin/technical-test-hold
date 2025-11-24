@@ -15,7 +15,10 @@ export const mergeDocuments = (backendDocs, localDocs) => {
         if (idx === -1) {
             merged.push(localDoc);
         } else {
-            if (new Date(localDoc.createdAt) > new Date(merged[idx].createdAt)) {
+            // Use updatedAt for conflict resolution
+            const localDate = new Date(localDoc.updatedAt || localDoc.createdAt);
+            const remoteDate = new Date(merged[idx].updatedAt || merged[idx].createdAt);
+            if (localDate > remoteDate) {
                 merged[idx] = localDoc;
             }
         }

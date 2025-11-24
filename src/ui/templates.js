@@ -37,7 +37,7 @@ const renderListRow = (doc) => {
   <div class="list-col">
     <div class="name">${data.name}</div>
     <div class="version">
-      Version ${Number(doc.version) || 1} · ${formatRelative(doc.createdAt)}
+      Version ${doc.version} · ${formatRelative(doc.createdAt)}
     </div>
   </div>
   <div class="list-col">${data.contributors}</div>
@@ -51,7 +51,7 @@ const renderGridCard = (doc) => {
   return `<article class="card" data-id="${data.id}">
   <h3>${data.name}</h3>
   <div class="version">
-    Version ${Number(doc.version) || 1} · ${formatRelative(doc.createdAt)}
+    Version ${doc.version} · ${formatRelative(doc.createdAt)}
   </div>
   <div class="stack">
     <strong>Contributors:</strong><br/>${data.contributors}
