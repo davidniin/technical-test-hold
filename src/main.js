@@ -62,6 +62,14 @@ const init = async () => {
 
     // Initialize Service
     await documentService.init();
+
+    // Hide loading overlay
+    const loadingOverlay = selectElement('#loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('hidden');
+        // Remove from DOM after transition
+        setTimeout(() => loadingOverlay.remove(), 300);
+    }
 };
 
 // Cleanup on unload

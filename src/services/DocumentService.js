@@ -16,9 +16,10 @@ class DocumentService {
             const merged = mergeDocuments(documents, localDocs);
             Store.setDocuments(merged);
         } catch (err) {
-            Store.setDocuments([]);
-            console.warn('[DocumentService] Failed to load documents:', err);
-            throw new Error('No se pudieron cargar documentos (puedes crear locales).');
+            // If API fails, at least load local documents
+            const localDocs = getLocalDocuments();
+            Store.setDocuments(localDocs);
+            console.warn('[DocumentService] Failed to load documents from API, using local only:', err);
         }
 
         this.connectToLiveUpdates();
